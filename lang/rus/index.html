@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конвертер изображений</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --error-color: #e63946;
+            --border-radius: 12px;
+            --box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--dark-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        @media (min-width: 992px) {
+            .app-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .drop-area {
+            border: 3px dashed var(--primary-color);
+            border-radius: var(--border-radius);
+            padding: 50px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 20px;
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .drop-area:hover, .drop-area.dragover {
+            background-color: rgba(67, 97, 238, 0.1);
+            border-color: var(--secondary-color);
+        }
+
+        .drop-area i {
+            font-size: 64px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .drop-area h3 {
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-accent {
+            background-color: var(--accent-color);
+        }
+
+        .btn-accent:hover {
+            background-color: #e11573;
+        }
+
+        .btn-full {
+            width: 100%;
+            margin-top: 20px;
+            padding: 16px;
+        }
+
+        .file-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: var(--border-radius);
+            padding: 10px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+            transition: var(--transition);
+        }
+
+        .file-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-icon {
+            margin-right: 12px;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .file-info {
+            flex-grow: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        .file-size {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .remove-file {
+            background: none;
+            border: none;
+            color: var(--error-color);
+            cursor: pointer;
+            font-size: 1.4rem;
+            padding: 5px;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .remove-file:hover {
+            background-color: rgba(230, 57, 70, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .quality-slider {
+            margin-top: 10px;
+        }
+
+        .quality-value {
+            text-align: center;
+            margin-top: 8px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .progress-container {
+            margin-top: 25px;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .results-section {
+            margin-top: 40px;
+            display: none;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .result-item {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .result-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .result-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            max-height: 150px;
+            object-fit: contain;
+        }
+
+        .result-info {
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            color: #6c757d;
+        }
+
+        .download-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.9rem;
+            width: 100%;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .download-btn:hover {
+            background-color: #3aa8d8;
+        }
+
+        .batch-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .batch-controls .btn {
+            flex: 1;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+        }
+
+        .format-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        /* Адаптивный дизайн */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .batch-controls {
+                flex-direction: column;
+            }
+            
+            .results-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .results-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Конвертер изображений</h1>
+            <p class="subtitle">Конвертируйте изображения между различными форматами с пакетной обработкой и поддержкой перетаскивания</p>
+            <div class="format-badges">
+                <span class="badge">AVIF</span>
+                <span class="badge">WebP</span>
+                <span class="badge">PNG</span>
+                <span class="badge">JPG</span>
+                <span class="badge">GIF</span>
+                <span class="badge">TIFF</span>
+                <span class="badge">ICO</span>
+                <span class="badge">BMP</span>
+            </div>
+        </header>
+
+        <div class="app-container">
+            <section class="card">
+                <h2 class="card-title">📁 Загрузка изображений</h2>
+                <div class="drop-area" id="dropArea">
+                    <i>📁</i>
+                    <h3>Перетащите файлы сюда</h3>
+                    <p>или</p>
+                    <button class="btn" id="browseBtn">Выбрать файлы</button>
+                    <input type="file" id="fileInput" class="file-input" multiple accept="image/*">
+                </div>
+
+                <div class="file-list" id="fileList">
+                    <!-- Список файлов будет добавляться здесь -->
+                </div>
+
+                <div class="batch-controls">
+                    <button class="btn" id="convertAllBtn">Конвертировать все</button>
+                    <button class="btn btn-accent" id="clearAllBtn">Очистить все</button>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2 class="card-title">⚙️ Настройки конвертации</h2>
+                <div class="form-group">
+                    <label for="outputFormat">Выходной формат:</label>
+                    <select id="outputFormat">
+                        <option value="png">PNG (Portable Network Graphics)</option>
+                        <option value="jpeg">JPEG (Joint Photographic Experts Group)</option>
+                        <option value="webp">WebP (Google Web Picture)</option>
+                        <option value="avif">AVIF (AV1 Image File Format)</option>
+                        <option value="gif">GIF (Graphics Interchange Format)</option>
+                        <option value="bmp">BMP (Bitmap Image)</option>
+                        <option value="ico">ICO (Icon Format)</option>
+                        <option value="tiff">TIFF (Tagged Image File Format)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="quality">Качество (для JPEG/WebP/AVIF):</label>
+                    <input type="range" id="quality" class="quality-slider" min="1" max="100" value="85">
+                    <div class="quality-value" id="qualityValue">85%</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="resize">Изменение размера (опционально):</label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <input type="number" id="width" placeholder="Ширина">
+                        <input type="number" id="height" placeholder="Высота">
+                    </div>
+                    <div>
+                        <input type="checkbox" id="maintainAspectRatio" checked>
+                        <label for="maintainAspectRatio" style="display: inline; margin-left: 5px;">Сохранять пропорции</label>
+                    </div>
+                </div>
+
+                <button class="btn btn-accent btn-full" id="convertBtn">Конвертировать выбранные файлы</button>
+
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar">
+                        <div class="progress" id="progressBar"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">Обработка...</div>
+                </div>
+            </section>
+        </div>
+
+        <section class="card results-section" id="resultsSection">
+            <div class="results-header">
+                <h2 class="card-title">📊 Результаты конвертации</h2>
+                <button class="btn" id="downloadAllBtn">Скачать все</button>
+            </div>
+            <div class="results-grid" id="resultsGrid">
+                <!-- Результаты будут добавляться здесь -->
+            </div>
+        </section>
+
+        <footer>
+            <p>Конвертер изображений &copy; 2023 | Поддерживаемые форматы: PNG, JPEG, WebP, AVIF, GIF, BMP, ICO, TIFF</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы DOM
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const browseBtn = document.getElementById('browseBtn');
+            const fileList = document.getElementById('fileList');
+            const outputFormat = document.getElementById('outputFormat');
+            const qualitySlider = document.getElementById('quality');
+            const qualityValue = document.getElementById('qualityValue');
+            const convertBtn = document.getElementById('convertBtn');
+            const convertAllBtn = document.getElementById('convertAllBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsGrid = document.getElementById('resultsGrid');
+            const widthInput = document.getElementById('width');
+            const heightInput = document.getElementById('height');
+            const maintainAspectRatio = document.getElementById('maintainAspectRatio');
+            const downloadAllBtn = document.getElementById('downloadAllBtn');
+
+            // Массивы для хранения файлов
+            let files = [];
+            let selectedFiles = [];
+            let conversionResults = [];
+
+            // Обновление значения качества
+            qualitySlider.addEventListener('input', function() {
+                qualityValue.textContent = `${this.value}%`;
+            });
+
+            // Обработчик для кнопки выбора файлов
+            browseBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+
+            // Обработчик для выбора файлов через input
+            fileInput.addEventListener('change', function(e) {
+                handleFiles(e.target.files);
+                fileInput.value = '';
+            });
+
+            // Обработчики для drag and drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                dropArea.classList.add('dragover');
+            }
+
+            function unhighlight() {
+                dropArea.classList.remove('dragover');
+            }
+
+            dropArea.addEventListener('drop', function(e) {
+                const dt = e.dataTransfer;
+                const droppedFiles = dt.files;
+                handleFiles(droppedFiles);
+            });
+
+            // Функция для обработки выбранных файлов
+            function handleFiles(fileList) {
+                for (let i = 0; i < fileList.length; i++) {
+                    const file = fileList[i];
+                    
+                    // Проверяем, является ли файл изображением
+                    if (!file.type.match('image.*')) {
+                        alert(`Файл "${file.name}" не является изображением и будет пропущен.`);
+                        continue;
+                    }
+                    
+                    // Добавляем файл в массив
+                    files.push({
+                        file: file,
+                        id: Date.now() + i,
+                        selected: true
+                    });
+                }
+                
+                updateFileList();
+            }
+
+            // Функция для обновления списка файлов
+            function updateFileList() {
+                fileList.innerHTML = '';
+                
+                if (files.length === 0) {
+                    fileList.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 20px;">Файлы не выбраны</p>';
+                    return;
+                }
+                
+                files.forEach(fileObj => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    
+                    const fileSize = formatFileSize(fileObj.file.size);
+                    
+                    fileItem.innerHTML = `
+                        <input type="checkbox" class="file-checkbox" ${fileObj.selected ? 'checked' : ''} data-id="${fileObj.id}">
+                        <div class="file-icon">🖼️</div>
+                        <div class="file-info">
+                            <div class="file-name">${fileObj.file.name}</div>
+                            <div class="file-size">${fileSize}</div>
+                        </div>
+                        <button class="remove-file" data-id="${fileObj.id}" title="Удалить файл">×</button>
+                    `;
+                    
+                    fileList.appendChild(fileItem);
+                });
+                
+                // Добавляем обработчики событий для чекбоксов и кнопок удаления
+                document.querySelectorAll('.file-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        const id = parseInt(this.getAttribute('data-id'));
+                        const fileObj = files.find(f => f.id === id);
+                        if (fileObj) {
+                            fileObj.selected = this.checked;
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('.remove-file').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const id = parseInt(this.getAttribute('data-id'));
+                        files = files.filter(f => f.id !== id);
+                        updateFileList();
+                    });
+                });
+            }
+
+            // Функция для форматирования размера файла
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Байт';
+                
+                const k = 1024;
+                const sizes = ['Байт', 'КБ', 'МБ', 'ГБ'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Обработчик для кнопки "Конвертировать выбранные"
+            convertBtn.addEventListener('click', function() {
+                selectedFiles = files.filter(f => f.selected);
+                
+                if (selectedFiles.length === 0) {
+                    alert('Пожалуйста, выберите хотя бы один файл для конвертации.');
+                    return;
+                }
+                
+                convertFiles(selectedFiles);
+            });
+
+            // Обработчик для кнопки "Конвертировать все"
+            convertAllBtn.addEventListener('click', function() {
+                if (files.length === 0) {
+                    alert('Пожалуйста, добавьте файлы для конвертации.');
+                    return;
+                }
+                
+                // Выбираем все файлы
+                files.forEach(f => f.selected = true);
+                updateFileList();
+                
+                selectedFiles = [...files];
+                convertFiles(selectedFiles);
+            });
+
+            // Обработчик для кнопки "Очистить все"
+            clearAllBtn.addEventListener('click', function() {
+                files = [];
+                updateFileList();
+                resultsSection.style.display = 'none';
+            });
+
+            // Обработчик для кнопки "Скачать все"
+            downloadAllBtn.addEventListener('click', function() {
+                if (conversionResults.length === 0) {
+                    alert('Нет конвертированных файлов для скачивания.');
+                    return;
+                }
+                
+                conversionResults.forEach(result => {
+                    const link = document.createElement('a');
+                    link.href = result.url;
+                    link.download = result.filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            });
+
+            // Функция для конвертации файлов
+            function convertFiles(filesToConvert) {
+                // Показываем прогресс
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '0%';
+                progressText.textContent = 'Подготовка...';
+                
+                // Очищаем предыдущие результаты
+                resultsGrid.innerHTML = '';
+                resultsSection.style.display = 'block';
+                conversionResults = [];
+                
+                const totalFiles = filesToConvert.length;
+                let processedFiles = 0;
+                
+                // Получаем настройки
+                const format = outputFormat.value;
+                const quality = parseInt(qualitySlider.value) / 100;
+                const width = widthInput.value ? parseInt(widthInput.value) : null;
+                const height = heightInput.value ? parseInt(heightInput.value) : null;
+                const keepAspectRatio = maintainAspectRatio.checked;
+                
+                // Обрабатываем каждый файл
+                filesToConvert.forEach((fileObj, index) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const img = new Image();
+                        
+                        img.onload = function() {
+                            // Создаем canvas для конвертации
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            
+                            // Рассчитываем размеры
+                            let newWidth = img.width;
+                            let newHeight = img.height;
+                            
+                            if (width || height) {
+                                if (keepAspectRatio) {
+                                    const aspectRatio = img.width / img.height;
+                                    
+                                    if (width && height) {
+                                        // Если заданы оба размера, подгоняем с сохранением пропорций
+                                        const targetAspectRatio = width / height;
+                                        
+                                        if (aspectRatio > targetAspectRatio) {
+                                            newWidth = width;
+                                            newHeight = width / aspectRatio;
+                                        } else {
+                                            newWidth = height * aspectRatio;
+                                            newHeight = height;
+                                        }
+                                    } else if (width) {
+                                        newWidth = width;
+                                        newHeight = width / aspectRatio;
+                                    } else if (height) {
+                                        newWidth = height * aspectRatio;
+                                        newHeight = height;
+                                    }
+                                } else {
+                                    newWidth = width || img.width;
+                                    newHeight = height || img.height;
+                                }
+                            }
+                            
+                            canvas.width = newWidth;
+                            canvas.height = newHeight;
+                            
+                            // Рисуем изображение на canvas
+                            ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                            
+                            // Конвертируем в выбранный формат
+                            let mimeType;
+                            switch (format) {
+                                case 'jpeg':
+                                    mimeType = 'image/jpeg';
+                                    break;
+                                case 'png':
+                                    mimeType = 'image/png';
+                                    break;
+                                case 'webp':
+                                    mimeType = 'image/webp';
+                                    break;
+                                case 'avif':
+                                    mimeType = 'image/avif';
+                                    break;
+                                case 'gif':
+                                    mimeType = 'image/gif';
+                                    break;
+                                case 'bmp':
+                                    mimeType = 'image/bmp';
+                                    break;
+                                case 'ico':
+                                    mimeType = 'image/x-icon';
+                                    break;
+                                case 'tiff':
+                                    mimeType = 'image/tiff';
+                                    break;
+                                default:
+                                    mimeType = 'image/png';
+                            }
+                            
+                            // Получаем данные в выбранном формате
+                            canvas.toBlob(function(blob) {
+                                // Создаем URL для скачивания
+                                const url = URL.createObjectURL(blob);
+                                const filename = getFileNameWithoutExtension(fileObj.file.name) + '.' + format;
+                                
+                                // Сохраняем результат для пакетного скачивания
+                                conversionResults.push({
+                                    url: url,
+                                    filename: filename
+                                });
+                                
+                                // Создаем элемент результата
+                                const resultItem = document.createElement('div');
+                                resultItem.className = 'result-item';
+                                
+                                const originalSize = formatFileSize(fileObj.file.size);
+                                const convertedSize = formatFileSize(blob.size);
+                                const sizeReduction = ((fileObj.file.size - blob.size) / fileObj.file.size * 100).toFixed(1);
+                                
+                                resultItem.innerHTML = `
+                                    <img src="${url}" class="result-image" alt="Конвертированное изображение">
+                                    <div class="result-info">
+                                        <div>Исходный: ${originalSize}</div>
+                                        <div>Конвертированный: ${convertedSize}</div>
+                                        <div style="color: ${blob.size < fileObj.file.size ? 'var(--success-color)' : 'var(--warning-color)'}">
+                                            ${blob.size < fileObj.file.size ? `Уменьшен: ${sizeReduction}%` : 'Увеличен: ' + Math.abs(sizeReduction) + '%'}
+                                        </div>
+                                    </div>
+                                    <a href="${url}" download="${filename}" class="download-btn">Скачать</a>
+                                `;
+                                
+                                resultsGrid.appendChild(resultItem);
+                                
+                                // Обновляем прогресс
+                                processedFiles++;
+                                const progress = (processedFiles / totalFiles) * 100;
+                                progressBar.style.width = `${progress}%`;
+                                progressText.textContent = `Обработано ${processedFiles} из ${totalFiles} файлов`;
+                                
+                                // Скрываем прогресс после завершения
+                                if (processedFiles === totalFiles) {
+                                    setTimeout(() => {
+                                        progressContainer.style.display = 'none';
+                                    }, 1000);
+                                }
+                            }, mimeType, quality);
+                        };
+                        
+                        img.src = e.target.result;
+                    };
+                    
+                    reader.readAsDataURL(fileObj.file);
+                });
+            }
+
+            // Вспомогательная функция для получения имени файла без расширения
+            function getFileNameWithoutExtension(filename) {
+                return filename.replace(/\.[^/.]+$/, "");
+            }
+
+            // Инициализация
+            updateFileList();
+        });
+    </script>
+</body>
+</html>

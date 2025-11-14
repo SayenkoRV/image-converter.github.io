@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Format Converter</title>
+    <title>Multilingual Site - English</title>
+    <link rel="stylesheet" href="css/style.css">
     <style>
         :root {
             --primary-color: #4361ee;
@@ -42,6 +43,100 @@
         header {
             text-align: center;
             margin-bottom: 40px;
+            color: white;
+            position: relative;
+        }
+
+        /* Выпадающий список языков */
+        .language-switcher {
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .language-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            min-width: 120px;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dropdown-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .language-flag {
+            font-size: 1.1em;
+        }
+
+        .arrow {
+            font-size: 0.8em;
+            transition: transform 0.3s;
+        }
+
+        .language-dropdown.active .arrow {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: var(--transition);
+            z-index: 1001;
+            margin-top: 5px;
+        }
+
+        .language-dropdown.active .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            text-decoration: none;
+            color: var(--dark-color);
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
+        .dropdown-item.active {
+            background: var(--primary-color);
             color: white;
         }
 
@@ -408,12 +503,39 @@
             .card {
                 padding: 20px;
             }
+            
+            .language-switcher {
+                position: static;
+                display: flex;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
-<body>
+<body class="lang-en">
     <div class="container">
         <header>
+            <div class="language-switcher">
+                <div class="language-dropdown">
+                    <button class="dropdown-toggle">
+                        <span class="language-flag">🇺🇸</span>
+                        English
+                        <span class="arrow">▼</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="index.html" class="dropdown-item active">
+                            <span class="language-flag">🇺🇸</span>
+                            English
+                        </a>
+                        <a href="lang/ru/index.html" class="dropdown-item">
+                            <span class="language-flag">🇷🇺</span>
+                            Русский
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
             <h1>Image Format Converter</h1>
             <p class="subtitle">Convert images between various formats with batch processing and drag & drop support</p>
             <div class="format-badges">
@@ -510,6 +632,61 @@
     </div>
 
     <script>
+        // Управление выпадающим списком языков
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdown = document.querySelector('.language-dropdown');
+            const toggle = document.querySelector('.dropdown-toggle');
+            
+            function closeDropdown() {
+                dropdown.classList.remove('active');
+                document.removeEventListener('click', closeDropdownOnClickOutside);
+            }
+            
+            function openDropdown() {
+                dropdown.classList.add('active');
+                setTimeout(() => {
+                    document.addEventListener('click', closeDropdownOnClickOutside);
+                }, 0);
+            }
+            
+            function closeDropdownOnClickOutside(event) {
+                if (!dropdown.contains(event.target)) {
+                    closeDropdown();
+                }
+            }
+            
+            // Обработчик клика по переключателю
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation(); // Предотвращаем всплытие
+                
+                if (dropdown.classList.contains('active')) {
+                    closeDropdown();
+                } else {
+                    openDropdown();
+                }
+            });
+            
+            // Закрытие при нажатии Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeDropdown();
+                }
+            });
+            
+            // Автоматическое закрытие при переходе на другую страницу
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    closeDropdown();
+                });
+            });
+            
+            // Сохраняем выбранный язык
+            const bodyClass = document.body.className;
+            const currentLang = bodyClass.replace('lang-', '');
+            localStorage.setItem('preferredLanguage', currentLang);
+        });
+
+        // Оригинальный код конвертера изображений
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
             const dropArea = document.getElementById('dropArea');
